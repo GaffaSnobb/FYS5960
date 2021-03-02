@@ -1,0 +1,15 @@
+
+ Energy levels
+
+    N    J prty N_Jp    T     E(MeV)  Ex(MeV)  log-file
+
+    1     0 +     1     0    -99.578    0.000  log_Cr48_gxpf1a_j0p.txt 
+    2     2 +     1     0    -98.789    0.788  log_Cr48_gxpf1a_j4p.txt 
+    3     4 +     1     0    -97.861    1.717  log_Cr48_gxpf1a_j8p.txt 
+    4     6 +     1     0    -96.349    3.229  log_Cr48_gxpf1a_j12p.txt 
+    5     8 +     1     0    -94.825    4.753  log_Cr48_gxpf1a_j16p.txt 
+    6    10 +     1     0    -93.149    6.429  log_Cr48_gxpf1a_j20p.txt 
+    7    12 +     1     0    -91.856    7.722  log_Cr48_gxpf1a_j24p.txt 
+    8    14 +     1     0    -89.877    9.701  log_Cr48_gxpf1a_j28p.txt 
+    9    16 +     1     0    -86.772   12.806  log_Cr48_gxpf1a_j32p.txt 
+
