@@ -57,18 +57,28 @@ def level_density(levels, bin_size):
     counts = []
     bin_levels = []
     current_bin = 0  # Initial.
+    bins = np.arange(0, levels[-1] + bin_size, bin_size)
+    counts = np.zeros(len(bins))
     # for i in range(N):
     #     for j in range(N):
     #         if (levels[j] >= levels[i] - bin_size/2) and (levels[j] <= levels[i] + bin_size/2):
     #             counts[i] += 1
 
-    while current_bin < levels[-1]:
-        bin_levels.append(current_bin)
-        counts.append(np.sum(  current_bin < levels[levels < current_bin + bin_size]  ))
-        current_bin += bin_size
+    # while current_bin < levels[-1]:
+    #     bin_levels.append(current_bin)
+    #     counts.append(np.sum(  current_bin <= levels[levels < current_bin + bin_size]  ))
+    #     current_bin += bin_size
 
-    counts = np.array(counts)
-    return counts/bin_size, np.array(bin_levels)
+    for i in range(len(bins) - 1):
+        counts[i] = np.sum(bins[i] <= levels[levels < bins[i + 1]])
+
+    return (counts/bin_size)[:-1], bins[1:]
+
+
+    # counts = np.array(counts)
+    # return counts/bin_size, np.array(bin_levels)
+
+
 
 
 def read_kshell_output(fname):
@@ -213,6 +223,8 @@ if __name__ == "__main__":
     levels_2 = np.loadtxt("levels_56Fe.txt")
     densities_1, bin_levels_1 = level_density(levels_2, bin_size_1*1000)
     densities_2, bin_levels_2 = level_density(levels_2, bin_size_2*1000)
+
+    print(bin_levels_2)
     
     plt.step(bin_levels_1, densities_1, label=f"{bin_size_1=}")
     plt.step(bin_levels_2, densities_2, label=f"{bin_size_2=}")
