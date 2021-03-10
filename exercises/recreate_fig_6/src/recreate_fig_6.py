@@ -31,6 +31,7 @@ def level_density(levels, bin_size):
 
     return (counts/bin_size)[:-1], bins[1:]
 
+
 class ReadKshellOutput:
     """
     Implemented as class just to avoid returning a bunch of values.
@@ -310,12 +311,13 @@ def create_jpi_list(spins, parities):
     
     return sorted(spins_new, key=lambda tup: tup[0])
 
+
 if __name__ == "__main__":
     test_file_read()
     bin_width = 0.2
     E_max = 30
     Ex_min = 0 # Lower limit for emitted gamma energy [MeV].
-    Ex_max = 20 # Upper limit for emitted gamma energy [MeV].
+    Ex_max = 30 # Upper limit for emitted gamma energy [MeV].
     n_bins = int(np.ceil(E_max/bin_width))
     E_max_adjusted = bin_width*n_bins
     bins = np.linspace(0, E_max_adjusted, n_bins + 1)
@@ -324,59 +326,167 @@ if __name__ == "__main__":
     fig, ax = plt.subplots()
 
     directory = "kshell_output/"
-    fnames = [
-        "summary_S26_usda.txt", "summary_S27_usda.txt", "summary_S28_usda.txt",
-        "summary_S29_usda.txt", "summary_S30_usda.txt", "summary_S31_usda.txt",
-        "summary_S32_usda.txt", "summary_S33_usda.txt", "summary_S34_usda.txt",
-        "summary_S35_usda.txt",
+    fnames_oxygen = [
+        # ["08_oxygen/summary_O16_usda.txt", 16], ["08_oxygen/summary_O17_usda.txt", 17],
+        ["08_oxygen/summary_O18_usda.txt", 18], ["08_oxygen/summary_O19_usda.txt", 19],
+        ["08_oxygen/summary_O20_usda.txt", 20], ["08_oxygen/summary_O21_usda.txt", 21],
+        ["08_oxygen/summary_O22_usda.txt", 22], ["08_oxygen/summary_O23_usda.txt", 23],
+        ["08_oxygen/summary_O24_usda.txt", 24], ["08_oxygen/summary_O25_usda.txt", 25],
+        ["08_oxygen/summary_O26_usda.txt", 26],# ["08_oxygen/summary_O27_usda.txt", 27],
+        #["08_oxygen/summary_O28_usda.txt", 28]
     ]
-    mass_numbers = np.array([26, 27, 28, 29, 30, 31, 32, 33, 34, 35])
-    mass_numbers -= 16
-    ratios = []
+    fnames_fluorine = [
+        ["09_fluorine/summary_F17_usda.txt", 17], ["09_fluorine/summary_F18_usda.txt", 18],
+        ["09_fluorine/summary_F19_usda.txt", 19], ["09_fluorine/summary_F20_usda.txt", 20],
+        ["09_fluorine/summary_F21_usda.txt", 21], ["09_fluorine/summary_F22_usda.txt", 22],
+        ["09_fluorine/summary_F23_usda.txt", 23], ["09_fluorine/summary_F24_usda.txt", 24],
+        ["09_fluorine/summary_F25_usda.txt", 25], ["09_fluorine/summary_F26_usda.txt", 26],
+        ["09_fluorine/summary_F27_usda.txt", 27], ["09_fluorine/summary_F28_usda.txt", 28],
+        ["09_fluorine/summary_F29_usda.txt", 29]
+    ]
+    fnames_neon = [
+        ["10_neon/summary_Ne18_usda.txt", 18], ["10_neon/summary_Ne19_usda.txt", 19],
+        ["10_neon/summary_Ne20_usda.txt", 20], ["10_neon/summary_Ne21_usda.txt", 21],
+        ["10_neon/summary_Ne22_usda.txt", 22], ["10_neon/summary_Ne23_usda.txt", 23],
+        ["10_neon/summary_Ne24_usda.txt", 24], ["10_neon/summary_Ne25_usda.txt", 25],
+        ["10_neon/summary_Ne26_usda.txt", 26], ["10_neon/summary_Ne27_usda.txt", 27],
+        ["10_neon/summary_Ne28_usda.txt", 28], ["10_neon/summary_Ne29_usda.txt", 29],
+        ["10_neon/summary_Ne30_usda.txt", 30]
+    ]
+    fnames_sodium = [
+        ["11_sodium/summary_Na19_usda.txt", 19], ["11_sodium/summary_Na20_usda.txt", 20],
+        ["11_sodium/summary_Na21_usda.txt", 21], ["11_sodium/summary_Na22_usda.txt", 22],
+        ["11_sodium/summary_Na23_usda.txt", 23], ["11_sodium/summary_Na24_usda.txt", 24],
+        ["11_sodium/summary_Na25_usda.txt", 25], ["11_sodium/summary_Na26_usda.txt", 26],
+        ["11_sodium/summary_Na27_usda.txt", 27], ["11_sodium/summary_Na28_usda.txt", 28],
+        ["11_sodium/summary_Na29_usda.txt", 29], ["11_sodium/summary_Na30_usda.txt", 30],
+        ["11_sodium/summary_Na31_usda.txt", 31]
+    ]
+    fnames_magnesium = [
+        ["12_magnesium/summary_Mg20_usda.txt", 20], ["12_magnesium/summary_Mg21_usda.txt", 21],
+        ["12_magnesium/summary_Mg22_usda.txt", 22], ["12_magnesium/summary_Mg23_usda.txt", 23],
+        ["12_magnesium/summary_Mg24_usda.txt", 24], ["12_magnesium/summary_Mg25_usda.txt", 25],
+        ["12_magnesium/summary_Mg26_usda.txt", 26], ["12_magnesium/summary_Mg27_usda.txt", 27],
+        ["12_magnesium/summary_Mg28_usda.txt", 28], ["12_magnesium/summary_Mg29_usda.txt", 29],
+        ["12_magnesium/summary_Mg30_usda.txt", 30], ["12_magnesium/summary_Mg31_usda.txt", 31],
+        #["12_magnesium/summary_Mg32_usda.txt", 32]
+    ]
+    fnames_aluminium = [
+        ["13_aluminium/summary_Al21_usda.txt", 21], ["13_aluminium/summary_Al22_usda.txt", 22],
+        ["13_aluminium/summary_Al23_usda.txt", 23], ["13_aluminium/summary_Al24_usda.txt", 24],
+        ["13_aluminium/summary_Al25_usda.txt", 25], ["13_aluminium/summary_Al26_usda.txt", 26],
+        ["13_aluminium/summary_Al27_usda.txt", 27], ["13_aluminium/summary_Al28_usda.txt", 28],
+        ["13_aluminium/summary_Al29_usda.txt", 29], ["13_aluminium/summary_Al30_usda.txt", 30],
+        ["13_aluminium/summary_Al31_usda.txt", 31], ["13_aluminium/summary_Al32_usda.txt", 32],
+        ["13_aluminium/summary_Al33_usda.txt", 33]
+    ]
+    fnames_silicon = [
+        ["14_silicon/summary_Si22_usda.txt", 22], ["14_silicon/summary_Si23_usda.txt", 23],
+        ["14_silicon/summary_Si24_usda.txt", 24], ["14_silicon/summary_Si25_usda.txt", 25],
+        ["14_silicon/summary_Si26_usda.txt", 26], ["14_silicon/summary_Si27_usda.txt", 27],
+        ["14_silicon/summary_Si28_usda.txt", 28], ["14_silicon/summary_Si29_usda.txt", 29],
+        ["14_silicon/summary_Si30_usda.txt", 30], ["14_silicon/summary_Si31_usda.txt", 31],
+        ["14_silicon/summary_Si32_usda.txt", 32], ["14_silicon/summary_Si33_usda.txt", 33],
+        ["14_silicon/summary_Si34_usda.txt", 34]
+    ]
+    fnames_phosphorus = [
+        ["15_phosphorus/summary_P23_usda.txt", 23], ["15_phosphorus/summary_P24_usda.txt", 24],
+        ["15_phosphorus/summary_P25_usda.txt", 25], ["15_phosphorus/summary_P26_usda.txt", 26],
+        ["15_phosphorus/summary_P27_usda.txt", 27], ["15_phosphorus/summary_P28_usda.txt", 28],
+        ["15_phosphorus/summary_P29_usda.txt", 29], ["15_phosphorus/summary_P30_usda.txt", 30],
+        ["15_phosphorus/summary_P31_usda.txt", 31], ["15_phosphorus/summary_P32_usda.txt", 32],
+        ["15_phosphorus/summary_P33_usda.txt", 33], ["15_phosphorus/summary_P34_usda.txt", 34],
+        ["15_phosphorus/summary_P35_usda.txt", 35]
+    ]
+    fnames_sulfur = [
+        ["16_sulfur/summary_S24_usda.txt", 24], ["16_sulfur/summary_S25_usda.txt", 25],
+        ["16_sulfur/summary_S26_usda.txt", 26], ["16_sulfur/summary_S27_usda.txt", 27],
+        ["16_sulfur/summary_S28_usda.txt", 28], ["16_sulfur/summary_S29_usda.txt", 29],
+        ["16_sulfur/summary_S30_usda.txt", 30], ["16_sulfur/summary_S31_usda.txt", 31],
+        ["16_sulfur/summary_S32_usda.txt", 32], ["16_sulfur/summary_S33_usda.txt", 33],
+        ["16_sulfur/summary_S34_usda.txt", 34], ["16_sulfur/summary_S35_usda.txt", 35],
+        ["16_sulfur/summary_S36_usda.txt", 36]
+    ]
+    fnames_chlorine = [
+        ["17_chlorine/summary_Cl26_usda.txt", 26], ["17_chlorine/summary_Cl27_usda.txt", 27],
+        ["17_chlorine/summary_Cl28_usda.txt", 28], ["17_chlorine/summary_Cl29_usda.txt", 29],
+        ["17_chlorine/summary_Cl30_usda.txt", 30], ["17_chlorine/summary_Cl31_usda.txt", 31],
+        ["17_chlorine/summary_Cl32_usda.txt", 32], ["17_chlorine/summary_Cl33_usda.txt", 33],
+        ["17_chlorine/summary_Cl34_usda.txt", 34], ["17_chlorine/summary_Cl35_usda.txt", 35],
+        ["17_chlorine/summary_Cl36_usda.txt", 36], ["17_chlorine/summary_Cl37_usda.txt", 37]
+    ]
+    fnames_argon = [
+        ["18_argon/summary_Ar26_usda.txt", 26], ["18_argon/summary_Ar27_usda.txt", 27],
+        ["18_argon/summary_Ar28_usda.txt", 28], ["18_argon/summary_Ar29_usda.txt", 29],
+        ["18_argon/summary_Ar30_usda.txt", 30], ["18_argon/summary_Ar31_usda.txt", 31],
+        ["18_argon/summary_Ar32_usda.txt", 32], ["18_argon/summary_Ar33_usda.txt", 33],
+        ["18_argon/summary_Ar34_usda.txt", 34], ["18_argon/summary_Ar35_usda.txt", 35],
+        ["18_argon/summary_Ar36_usda.txt", 36], ["18_argon/summary_Ar37_usda.txt", 37],
+        ["18_argon/summary_Ar38_usda.txt", 38],
+    ]
+    fnames_oxygen     = [[fname, mass_number - 8 ] for fname, mass_number in fnames_oxygen]
+    fnames_fluorine   = [[fname, mass_number - 9 ] for fname, mass_number in fnames_fluorine]
+    fnames_neon       = [[fname, mass_number - 10] for fname, mass_number in fnames_neon]
+    fnames_sodium     = [[fname, mass_number - 11] for fname, mass_number in fnames_sodium]
+    fnames_magnesium  = [[fname, mass_number - 12] for fname, mass_number in fnames_magnesium]
+    fnames_aluminium  = [[fname, mass_number - 13] for fname, mass_number in fnames_aluminium]
+    fnames_silicon    = [[fname, mass_number - 14] for fname, mass_number in fnames_silicon]
+    fnames_phosphorus = [[fname, mass_number - 15] for fname, mass_number in fnames_phosphorus]
+    fnames_sulfur     = [[fname, mass_number - 16] for fname, mass_number in fnames_sulfur]
+    fnames_chlorine   = [[fname, mass_number - 17] for fname, mass_number in fnames_chlorine]
+    fnames_argon      = [[fname, mass_number - 18] for fname, mass_number in fnames_argon]
 
-    for i in range(len(fnames)):
-        res = ReadKshellOutput()
-        _, _ = res.read_kshell_output(fname = directory + fnames[i])
+    fnames_combined = [
+        fnames_oxygen, fnames_fluorine, fnames_neon, fnames_sodium,
+        fnames_magnesium, fnames_aluminium, fnames_silicon, fnames_phosphorus,
+        fnames_sulfur, fnames_chlorine, fnames_argon
+    ]
+    # fnames_combined = [fnames_oxygen]
 
-        Jpi_list = create_jpi_list(
-            spins = res.levels[:, 1],
-            parities = res.levels[:, 2]
-        )
+    for fnames in fnames_combined:
+        ratios = []
+        for i in range(len(fnames)):
+            res = ReadKshellOutput()
+            res.read_kshell_output(fname = directory + fnames[i][0])
 
-        E_gs = res.levels[0, 0]
-        res.transitions[:, 2] += E_gs   # Add ground state energy for compatibility with Jørgen.
+            Jpi_list = create_jpi_list(
+                spins = res.levels[:, 1],
+                parities = res.levels[:, 2]
+            )
+            print(f"{fnames[i][0]=}")
+            E_gs = res.levels[0, 0]
+            res.transitions[:, 2] += E_gs   # Add ground state energy for compatibility with Jørgen.
 
-        gsf = smutil.strength_function_average(
-            levels = res.levels,
-            transitions = res.transitions,
-            Jpi_list = Jpi_list,
-            bin_width = bin_width,
-            Ex_min = Ex_min,    # [MeV].
-            Ex_max = Ex_max,    # [MeV].
-            multipole_type = "M1"
-        )
-        bin_slice = bins_middle[0:len(gsf)]
-        low_idx = (bin_slice <= 2)
-        high_idx = (bin_slice <= 6) == (2 <= bin_slice)
-        low = np.sum(gsf[low_idx])
-        high = np.sum(gsf[high_idx])
+            gsf = smutil.strength_function_average(
+                levels = res.levels,
+                transitions = res.transitions,
+                Jpi_list = Jpi_list,
+                bin_width = bin_width,
+                Ex_min = Ex_min,    # [MeV].
+                Ex_max = Ex_max,    # [MeV].
+                multipole_type = "M1"
+            )
+            bin_slice = bins_middle[0:len(gsf)]
+            low_idx = (bin_slice <= 2)
+            high_idx = (bin_slice <= 6) == (2 <= bin_slice)
+            low = np.sum(gsf[low_idx])
+            high = np.sum(gsf[high_idx])
+            low_high_ratio = low/high
 
-        low_high_ratio = low/high
+            ratios.append(low_high_ratio)
 
-        print(f"{low_high_ratio=}")
-        ratios.append(low_high_ratio)
-
-        # ax.plot(bin_slice, gsf, label=fnames[i][8:11])
-        # ax.legend()
-        # ax.set_xlabel(r"$E_{\gamma}$ [MeV]")
-        # ax.set_ylabel(r"gsf [MeV$^{-3}$]")
+            # ax.plot(bin_slice, gsf, label=fnames[i][8:11])
+            # ax.legend()
+            # ax.set_xlabel(r"$E_{\gamma}$ [MeV]")
+            # ax.set_ylabel(r"gsf [MeV$^{-3}$]")
+        
+        label = fnames[0][0][:fnames[0][0].index("/")]
+        ax.plot([n_neutrons for _, n_neutrons in fnames], ratios, "--.", label=label)
+        ax.set_yscale("log")
+        ax.set_xlabel("N")
+        ax.set_ylabel("Rel. amount of low-energy strength")
+        ax.legend()
     
-
-    ax.plot(mass_numbers, ratios, "--.", label="S")
-    ax.set_yscale("log")
-    ax.set_xlabel("N")
-    ax.set_ylabel("Rel. amount of low-energy strength")
-    ax.legend()
     plt.show()
 
     # print(f"{res.B_M1=}")
