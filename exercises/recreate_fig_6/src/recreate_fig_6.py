@@ -2,14 +2,8 @@ import sys, os
 # from fractions import Fraction
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import kshell_utilities as ksutil
-
-
-atomic_numbers = {
-    "oxygen": 8, "fluorine": 9, "neon": 10, "sodium": 11, "magnesium": 12,
-    "aluminium": 13, "silicon": 14, "phosphorus": 15, "sulfur": 16,
-    "chlorine": 17, "argon": 18
-}
 
 def level_density(levels, bin_size):
     """
@@ -91,7 +85,7 @@ def mean_transition_strength(B_M1):
     return np.array(B_M1_mean), np.array(B_M1_mean_level)
 
 class Recreate:
-    def __init__(self):
+    def __init__(self, directory):
         self.bin_width = 0.2
         self.E_max = 30
         self.Ex_min = 0 # Lower limit for emitted gamma energy [MeV].
@@ -103,7 +97,8 @@ class Recreate:
 
         self.all_fnames = {}
 
-        self.directory = "kshell_output/run_1/"
+        # self.directory = "kshell_output/run_1/"
+        self.directory = directory
         for element in sorted(os.listdir(self.directory)):
             """
             List all content in self.directory.
@@ -132,7 +127,7 @@ class Recreate:
                             """
                             n_neutrons = int(isotope[10:12])
 
-                        n_neutrons -= atomic_numbers[element.split("_")[1]]
+                        n_neutrons -= ksutil.atomic_numbers[element.split("_")[1]]
                         
                         self.all_fnames[element].append([element + "/" + isotope, n_neutrons])
         
@@ -191,8 +186,7 @@ class Recreate:
         ax.set_ylabel(r"gsf [MeV$^{-3}$]")
         plt.show()
 
-
-    def recreate_figure_6(self, filter=None):
+    def recreate_figure_6(self, filter_=None):
         """
         Recreate the figure from Jørgens article.
         """
@@ -204,10 +198,10 @@ class Recreate:
             Loop over all elements (grunnstoff).
             """
             fnames = self.all_fnames[key]   # For compatibility with old code.
-            if filter is not None:
-                if key.split("_")[1] not in filter:
+            if filter_ is not None:
+                if key.split("_")[1] not in filter_:
                     """
-                    Skip elements not in filter.
+                    Skip elements not in filter_.
                     """
                     continue
             
@@ -220,7 +214,7 @@ class Recreate:
                 print(f"{fnames[i][0]=}")
 
                 try:
-                    res = ksutil.loadtxt(self.directory + fnames[i][0])
+                    res = ksutil.loadtxt(self.directory + fnames[i][0])[0]
                 except FileNotFoundError:
                     print(f"File {fnames[i][0]} skipped! File not found.")
                     ratios.append(None) # Maintain correct list length for plotting.
@@ -257,7 +251,8 @@ class Recreate:
                 # Sum gsf for low and high energy range and take the ratio.
                 bin_slice = self.bins_middle[0:len(gsf)]
                 low_idx = (bin_slice <= 2)
-                high_idx = (bin_slice <= 6) == (2 <= bin_slice)
+                # high_idx = (bin_slice <= 6) == (2 <= bin_slice)
+                high_idx = (bin_slice <= 100) == (2 <= bin_slice)
                 low = np.sum(gsf[low_idx])
                 high = np.sum(gsf[high_idx])
                 low_high_ratio = low/high
@@ -274,20 +269,75 @@ class Recreate:
             ax.set_yscale("log")
             ax.set_xlabel("N")
             ax.set_ylabel("Rel. amount of low-energy strength")
+            ax.set_ylim([1e-1, 4e0])
             ax.legend()
         
         plt.show()
 
+def level_plot(directory, filter_):
+
+    data_files = ksutil.loadtxt(path=directory, is_directory=True, filter_=filter_)
+    print(data_files[6].fname_summary)
+    print(data_files[6].levels)
+    # line_width = 0.4
+    # x_scope = range(len(data_files[1].E_x))
+    # for i in range(len(data_files)):
+    #     try:
+    #         n = len(data_files[i].E_x)
+    #     except TypeError:
+    #         """
+    #         E_x might be None.
+    #         """
+    #         continue
+        
+    #     for j in range(n):
+    #         plt.hlines(
+    #             y = data_files[i].E_x[j],
+    #             xmin = x_scope[j] - line_width,
+    #             xmax = x_scope[j] + line_width,
+    #         )
+    
+    # plt.legend(loc="lower right")
+    # plt.ylabel("MeV")
+    # plt.show()
 
 if __name__ == "__main__":
+    directory_base = "kshell_output"
+    while True:
+        directory = input("Choose kshell output directory: ")
+        directory = f"{directory_base}/run_{directory}/"
+        if os.path.isdir(directory):
+            break
+        else:
+            print(f"'{directory}' is not a valid directory! Valid directories are:")
+            print(os.listdir(directory_base))
     
-    try:
-        isotope_name = sys.argv[1]
-    except IndexError:
-        isotope_name = "S24"
+    while True:
+        filter_ = input("Choose element (atomic mass or name): ")
+        
+        if (filter_ == "") or (filter_ == "all"):
+            filter_ = None
+            break
+        
+        if any([filter_ in elem for elem in os.listdir(directory)]):
+            try:
+                filter_ = f"{ksutil.atomic_numbers[filter_]}_{filter_}"
+            except KeyError:
+                filter_ = f"{ksutil.atomic_numbers_reversed[int(filter_)]}_{filter_}"
+            break
+        else:
+            print("Valid elements are:")
+            print(os.listdir(directory))
     
-    q = Recreate()
-    q.recreate_figure_6(filter=None)
+    q = Recreate(directory=directory)
+    q.recreate_figure_6(filter_=filter_)
+    # level_plot(directory=directory, filter_=filter_)
+
+    # try:
+    #     isotope_name = sys.argv[1]
+    # except IndexError:
+    #     isotope_name = "S24"
+    # q.recreate_figure_6(filter=None)
     # q.plot_gsf(isotope_name)
 
 
