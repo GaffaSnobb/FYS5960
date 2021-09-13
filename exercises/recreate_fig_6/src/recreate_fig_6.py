@@ -87,9 +87,10 @@ def mean_transition_strength(B_M1):
 class Recreate:
     def __init__(self, directory):
         self.bin_width = 0.2
-        self.E_max = 30
+        self.E_max = 46
         self.Ex_min = 0 # Lower limit for emitted gamma energy [MeV].
-        self.Ex_max = 30 # Upper limit for emitted gamma energy [MeV].
+        # self.Ex_max = 30 # Upper limit for emitted gamma energy [MeV].
+        self.Ex_max = self.E_max
         n_bins = int(np.ceil(self.E_max/self.bin_width))
         E_max_adjusted = self.bin_width*n_bins
         bins = np.linspace(0, E_max_adjusted, n_bins + 1)
@@ -97,7 +98,6 @@ class Recreate:
 
         self.all_fnames = {}
 
-        # self.directory = "kshell_output/run_1/"
         self.directory = directory
         for element in sorted(os.listdir(self.directory)):
             """
@@ -233,26 +233,21 @@ class Recreate:
                     ratios.append(None) # Maintain correct list length for plotting.
                     continue
                 
-                try:
-                    gsf = ksutil.strength_function_average(
-                        levels = res.levels,
-                        transitions = res.transitions,
-                        Jpi_list = Jpi_list,
-                        bin_width = self.bin_width,
-                        Ex_min = self.Ex_min,    # [MeV].
-                        Ex_max = self.Ex_max,    # [MeV].
-                        multipole_type = "M1"
-                    )
-                except IndexError:
-                    print(f"File {fnames[i][0]} skipped! That unknown index out of bounds error in ksutil.")
-                    ratios.append(None)
-                    continue
+                gsf = ksutil.strength_function_average(
+                    levels = res.levels,
+                    transitions = res.transitions,
+                    Jpi_list = Jpi_list,
+                    bin_width = self.bin_width,
+                    Ex_min = self.Ex_min,    # [MeV].
+                    Ex_max = self.Ex_max,    # [MeV].
+                    multipole_type = "M1"
+                )
 
                 # Sum gsf for low and high energy range and take the ratio.
                 bin_slice = self.bins_middle[0:len(gsf)]
                 low_idx = (bin_slice <= 2)
-                # high_idx = (bin_slice <= 6) == (2 <= bin_slice)
-                high_idx = (bin_slice <= 100) == (2 <= bin_slice)
+                high_idx = (bin_slice <= 6) == (2 <= bin_slice)
+                # high_idx = (bin_slice <= 100) == (2 <= bin_slice)
                 low = np.sum(gsf[low_idx])
                 high = np.sum(gsf[high_idx])
                 low_high_ratio = low/high
@@ -269,7 +264,7 @@ class Recreate:
             ax.set_yscale("log")
             ax.set_xlabel("N")
             ax.set_ylabel("Rel. amount of low-energy strength")
-            ax.set_ylim([1e-1, 4e0])
+            # ax.set_ylim([1e-1, 4e0])
             ax.legend()
         
         plt.show()
@@ -301,8 +296,82 @@ def level_plot(directory, filter_):
     # plt.ylabel("MeV")
     # plt.show()
 
+def recreate(directory, filter_=None):
+    """
+    Recreate figure 6 from JEM's paper.
+    """
+    if filter_ is None:
+        elements = [
+            "oxygen", "argon"
+        ]
+    else:
+        elements = [filter_]
+    
+    bin_width = 0.2
+    E_max = 46
+    Ex_min = 0
+    Ex_max = E_max
+    n_bins = int(np.ceil(E_max/bin_width))
+    E_max_adjusted = bin_width*n_bins
+    bins = np.linspace(0, E_max_adjusted, n_bins + 1)
+    bins_middle = (bins[0: -1] + bins[1:])/2
+    fig, ax = plt.subplots()
+
+    for element in elements:
+
+        res_list = ksutil.loadtxt(
+            path = directory,
+            is_directory = True,
+            filter_ = element
+        )
+
+        ratios = []
+        for res in res_list:
+
+            Jpi_list = ksutil.create_jpi_list(
+                spins = res.levels[:, 1],
+                parities = res.levels[:, 2]
+            )
+            E_gs = res.levels[0, 0]
+
+            try:
+                res.transitions[:, 2] += E_gs   # Add ground state energy for compatibility with Jørgen.
+            except IndexError:
+                print(f"File {res.fname_summary} skipped! Too few / no energy levels are present in this data file.")
+                ratios.append(None) # Maintain correct list length for plotting.
+                continue
+            
+            gsf = ksutil.strength_function_average(
+                levels = res.levels,
+                transitions = res.transitions,
+                Jpi_list = Jpi_list,
+                bin_width = 0.2,
+                Ex_min = Ex_min,    # [MeV].
+                Ex_max = Ex_max,    # [MeV].
+                multipole_type = "M1"
+            )
+
+            # Sum gsf for low and high energy range and take the ratio.
+            bin_slice = bins_middle[0:len(gsf)]
+            low_idx = (bin_slice <= 2)
+            high_idx = (bin_slice <= 6) == (2 <= bin_slice)
+            low = np.sum(gsf[low_idx])
+            high = np.sum(gsf[high_idx])
+            low_high_ratio = low/high
+            ratios.append(low_high_ratio)
+
+        ax.plot(range(8, 20+1), ratios, "--.", label=res.nucleus)
+        ax.set_yscale("log")
+        ax.set_xlabel("N")
+        ax.set_ylabel("Rel. amount of low-energy strength")
+        # ax.set_ylim([1e-1, 4e0])
+        ax.legend()
+    
+    plt.show()
+
+
 if __name__ == "__main__":
-    directory_base = "kshell_output"
+    directory_base = "kshell_output.tmp"
     while True:
         directory = input("Choose kshell output directory: ")
         directory = f"{directory_base}/run_{directory}/"
@@ -329,8 +398,9 @@ if __name__ == "__main__":
             print("Valid elements are:")
             print(os.listdir(directory))
     
-    q = Recreate(directory=directory)
-    q.recreate_figure_6(filter_=filter_)
+    # q = Recreate(directory=directory)
+    # q.recreate_figure_6(filter_=filter_)
+    recreate(directory, filter_)
     # level_plot(directory=directory, filter_=filter_)
 
     # try:
