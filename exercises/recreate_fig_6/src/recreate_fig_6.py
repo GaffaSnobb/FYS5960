@@ -1,8 +1,6 @@
 import sys, os
-# from fractions import Fraction
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 import kshell_utilities as ksutil
 
 def level_density(levels, bin_size):
@@ -133,40 +131,13 @@ def plot_gsf(isotope_name):
     ax.set_ylabel(r"gsf [MeV$^{-3}$]")
     plt.show()
 
-def level_plot(directory, filter_):
-
-    data_files = ksutil.loadtxt(path=directory, is_directory=True, filter_=filter_)
-    print(data_files[6].fname_summary)
-    print(data_files[6].levels)
-    # line_width = 0.4
-    # x_scope = range(len(data_files[1].E_x))
-    # for i in range(len(data_files)):
-    #     try:
-    #         n = len(data_files[i].E_x)
-    #     except TypeError:
-    #         """
-    #         E_x might be None.
-    #         """
-    #         continue
-        
-    #     for j in range(n):
-    #         plt.hlines(
-    #             y = data_files[i].E_x[j],
-    #             xmin = x_scope[j] - line_width,
-    #             xmax = x_scope[j] + line_width,
-    #         )
-    
-    # plt.legend(loc="lower right")
-    # plt.ylabel("MeV")
-    # plt.show()
-
 def recreate(directory, filter_=None):
     """
     Recreate figure 6 from JEM's paper.
     """
     if filter_ is None:
         elements = [
-            "oxygen", "argon"
+            "oxygen", "fluorine", "neon", "argon"
         ]
     else:
         elements = [filter_]
@@ -186,7 +157,8 @@ def recreate(directory, filter_=None):
         res_list = ksutil.loadtxt(
             path = directory,
             is_directory = True,
-            filter_ = element
+            filter_ = element,
+            load_and_save_to_file = True
         )
 
         ratios = []
@@ -224,7 +196,7 @@ def recreate(directory, filter_=None):
             low_high_ratio = low/high
             ratios.append(low_high_ratio)
 
-        ax.plot(range(8, 20+1), ratios, "--.", label=res.nucleus)
+        ax.plot(range(8, 20+1), ratios, "--.", label=element)
         ax.set_yscale("log")
         ax.set_xlabel("N")
         ax.set_ylabel("Rel. amount of low-energy strength")
